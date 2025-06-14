@@ -1,17 +1,17 @@
 # How to build a k8s cluster with Chainguard images using kubeadm
 
-## Pre-req
+## Prerequisites
 
 * Container Registry accessable by your nodes without authentication (we will mirror the images here)
 * Docker or similar installed to pull, tag and push the images to your registry
-* Kube nodes with containerd, kubelet, kubeadm, kubectl installed - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
-  > I have sample scripts I use to quickly prepare nodes and install all over this in k8s-build-scripts which you can use or just reference
+* Kube nodes with containerd, kubelet, kubeadm, kubectl installed - See [K8 Docs](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
+ > Note: Sample scripts I use to quickly build nodes and clusters are in [k8s-build-scripts](k8s-build-scripts/) for reference
 
 ## Mirror Chainguard images
 
 ### Get a list of pull strings that you need to end up with in your registry
 
-`kubeadm config images list --image-repository registry.andrewd.dev/kube-cg`
+```kubeadm config images list --image-repository registry.andrewd.dev/kube-cg```
 
 Output will be something like this (depends on version of kubeadm)
 ```
@@ -58,8 +58,9 @@ docker push registry.andrewd.dev/kube-cg/etcd:3.5.15-0
 ```
 
 ## Update containerd config with pause container pull string
-On your k8s nodes (I've already done this in my scripts) we need to update it to use the same pull string for the pause container as kubeadm
-`sudo sed -i '' 's|sandbox_image = .*|sandbox_image = "registry.andrewd.dev/kube-cg/pause:3.10"|' /etc/containerd/config.toml`
+On your k8s nodes (this is included in my scripts) we need to update it to use the same pull string for the pause container as kubeadm
+
+```sudo sed -i '' 's|sandbox_image = .*|sandbox_image = "registry.andrewd.dev/kube-cg/pause:3.10"|' /etc/containerd/config.toml```
 
 ## Install k8s compoenets 
 
@@ -79,8 +80,8 @@ docker tag cgr.dev/chainguard-private/flannel:0.27-dev registry.andrewd.dev/flan
 docker push registry.andrewd.dev/flannel-io-cg/flannel:v0.27.0
 ```
 
-### Build Chainguard flann-cni-plugin image and push to your registry for later
-Currently Chainguard doesn't have the flannel-cni image, but does have the package available in wolfi so lets build our own
+### Build Chainguard flannel-cni-plugin image and push to your registry for later
+Currently Chainguard doesn't have the flannel-cni image, but does have the package available in wolfi so lets build our own using the [Dockerfile.flannel-cni-plugin](Dockerfile.flannel-cni-plugin) in this repo
 
 ```
 docker build -t registry.andrewd.dev/flannel-io-cg/flannel-cni-plugin:v1.7.1-flannel1 -f Dockerfile.flannel-cni-plugin .
@@ -96,4 +97,4 @@ sed -i '' 's|ghcr.io/flannel-io|registry.andrewd.dev/flannel-io-cg|g' kube-flann
 
 ## Join worker nodes
 Run this on your master node to get a kubeadmin join command to run on your worker nodes
-`kubeadm token create --print-join-command`
+```kubeadm token create --print-join-command```
