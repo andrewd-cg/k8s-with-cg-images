@@ -11,7 +11,9 @@
 
 ### Get a list of pull strings that you need to end up with in your registry
 
-```kubeadm config images list --image-repository registry.andrewd.dev/kube-cg```
+```sh
+kubeadm config images list --image-repository registry.andrewd.dev/kube-cg
+```
 
 Output will be something like this (depends on version of kubeadm)
 ```
@@ -25,7 +27,7 @@ registry.andrewd.dev/kube-cg/etcd:3.5.15-0
 ```
 
 ### Now pull the matching versions from Chainguard (note tags will be slightly different)
-```
+```sh
 docker pull cgr.dev/chainguard-private/kubernetes-kube-apiserver:1.31.9
 docker pull cgr.dev/chainguard-private/kubernetes-kube-controller-manager:1.31.9
 docker pull cgr.dev/chainguard-private/kubernetes-kube-scheduler:1.31.9
@@ -36,7 +38,7 @@ docker pull cgr.dev/chainguard-private/etcd:3.5.15
 ```
 
 ### Tag the Chainguard images to match what is expected
-```
+```sh
 docker tag cgr.dev/chainguard-private/kubernetes-kube-apiserver:1.31.9 registry.andrewd.dev/kube-cg/kube-apiserver:v1.31.9
 docker tag cgr.dev/chainguard-private/kubernetes-kube-controller-manager:1.31.9 registry.andrewd.dev/kube-cg/kube-controller-manager:v1.31.9
 docker tag cgr.dev/chainguard-private/kubernetes-kube-scheduler:1.31.9 registry.andrewd.dev/kube-cg/kube-scheduler:v1.31.9
@@ -47,7 +49,7 @@ docker tag cgr.dev/chainguard-private/etcd:3.5.15 registry.andrewd.dev/kube-cg/e
 ```
 
 ### Push the images to your own registry with the tags kubeadm expects
-```
+```sh
 docker push registry.andrewd.dev/kube-cg/kube-apiserver:v1.31.9
 docker push registry.andrewd.dev/kube-cg/kube-controller-manager:v1.31.9
 docker push registry.andrewd.dev/kube-cg/kube-scheduler:v1.31.9
@@ -60,12 +62,16 @@ docker push registry.andrewd.dev/kube-cg/etcd:3.5.15-0
 ## Update containerd config with pause container pull string
 On your k8s nodes (this is included in my scripts) we need to update it to use the same pull string for the pause container as kubeadm
 
-```sudo sed -i '' 's|sandbox_image = .*|sandbox_image = "registry.andrewd.dev/kube-cg/pause:3.10"|' /etc/containerd/config.toml```
+```sh
+sudo sed -i '' 's|sandbox_image = .*|sandbox_image = "registry.andrewd.dev/kube-cg/pause:3.10"|' /etc/containerd/config.toml
+```
 
 ## Install k8s compoenets 
 
 ### Run kubeadm init with your image repository
-`sudo kubeadm init --image-repository registry.andrewd.dev/kube-cg`
+```sh
+sudo kubeadm init --image-repository registry.andrewd.dev/kube-cg
+```
 
 ## Install CNI
 In this case I'm using flannel.
@@ -74,7 +80,7 @@ In this case I'm using flannel.
 
 > Note: Have to use the -dev tag for the shell because Flannel requires the cp command on startup
 
-```
+```sh
 docker pull cgr.dev/chainguard-private/flannel:0.27-dev
 docker tag cgr.dev/chainguard-private/flannel:0.27-dev registry.andrewd.dev/flannel-io-cg/flannel:v0.27.0
 docker push registry.andrewd.dev/flannel-io-cg/flannel:v0.27.0
@@ -90,11 +96,13 @@ docker push registry.andrewd.dev/flannel-io-cg/flannel-cni-plugin:v1.7.1-flannel
 
 ### Grab the latest flannel.yml and swap out the image reference
 If you're using my scripts, I've already done this in 05-install_cni.sh
-```
+```sh
 wget https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 sed -i '' 's|ghcr.io/flannel-io|registry.andrewd.dev/flannel-io-cg|g' kube-flannel.yml
 ```
 
 ## Join worker nodes
 Run this on your master node to get a kubeadmin join command to run on your worker nodes
-```kubeadm token create --print-join-command```
+```sh
+kubeadm token create --print-join-command
+```
