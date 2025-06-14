@@ -106,3 +106,35 @@ Run this on your master node to get a kubeadmin join command to run on your work
 ```sh
 kubeadm token create --print-join-command
 ```
+
+## Result
+```sh
+k get pod -A  
+NAMESPACE      NAME                                      READY   STATUS    RESTARTS   AGE
+kube-flannel   kube-flannel-ds-sgdx6                     1/1     Running   0          40m
+kube-flannel   kube-flannel-ds-swcwx                     1/1     Running   0          41m
+kube-system    coredns-5f6f4bd8d5-dfgtd                  1/1     Running   0          41m
+kube-system    coredns-5f6f4bd8d5-zqw46                  1/1     Running   0          41m
+kube-system    etcd-lab4-controller                      1/1     Running   0          41m
+kube-system    kube-apiserver-lab4-controller            1/1     Running   0          41m
+kube-system    kube-controller-manager-lab4-controller   1/1     Running   0          41m
+kube-system    kube-proxy-5nmvp                          1/1     Running   0          40m
+kube-system    kube-proxy-n52q8                          1/1     Running   0          41m
+kube-system    kube-scheduler-lab4-controller            1/1     Running   0          41m
+
+k describe pod -A |grep -i "image:"
+    Image:         registry.andrewd.dev/flannel-io-cg/flannel-cni-plugin:v1.7.1-flannel1
+    Image:         registry.andrewd.dev/flannel-io-cg/flannel:v0.27.0
+    Image:         registry.andrewd.dev/flannel-io-cg/flannel:v0.27.0
+    Image:         registry.andrewd.dev/flannel-io-cg/flannel-cni-plugin:v1.7.1-flannel1
+    Image:         registry.andrewd.dev/flannel-io-cg/flannel:v0.27.0
+    Image:         registry.andrewd.dev/flannel-io-cg/flannel:v0.27.0
+    Image:         registry.andrewd.dev/kube-cg/coredns:v1.11.3
+    Image:         registry.andrewd.dev/kube-cg/coredns:v1.11.3
+    Image:         registry.andrewd.dev/kube-cg/etcd:3.5.15-0
+    Image:         registry.andrewd.dev/kube-cg/kube-apiserver:v1.31.9
+    Image:         registry.andrewd.dev/kube-cg/kube-controller-manager:v1.31.9
+    Image:         registry.andrewd.dev/kube-cg/kube-proxy:v1.31.9
+    Image:         registry.andrewd.dev/kube-cg/kube-proxy:v1.31.9
+    Image:         registry.andrewd.dev/kube-cg/kube-scheduler:v1.31.9
+```
