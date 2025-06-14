@@ -1,0 +1,6 @@
+FROM cgr.dev/chainguard-private/chainguard-base:latest
+
+RUN apk update && apk add flannel-cni-plugin
+
+# link /flannel  to /usr/bin/flannel binary as that's where the kube flannel.yml expects it to be
+RUN ln -s /usr/bin/flannel /flannel
